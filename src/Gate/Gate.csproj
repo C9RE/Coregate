@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>Coregate</AssemblyName>
+    <Version>1.0.0</Version>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <!-- Points at the game's BepInEx folder; override with -p:GameDir="D:\...\Dimraeth\BepInEx" -->
+    <GameDir>C:\Program Files (x86)\Steam\steamapps\common\Dimraeth\BepInEx</GameDir>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(GameDir)\core\BepInEx.Core.dll" Private="false" />
+    <Reference Include="$(GameDir)\core\BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference Include="$(GameDir)\core\0Harmony.dll" Private="false" />
+    <Reference Include="$(GameDir)\core\Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="$(GameDir)\interop\Il2Cppmscorlib.dll" Private="false" />
+    <Reference Include="$(GameDir)\interop\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="$(GameDir)\interop\Unity.Netcode.Runtime.dll" Private="false" />
+    <Reference Include="$(GameDir)\interop\Unity.Collections.dll" Private="false" />
+    <Reference Include="$(GameDir)\interop\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="$(GameDir)\interop\UnityEngine.Physics2DModule.dll" Private="false" />
+    <Reference Include="$(GameDir)\interop\UnityEngine.AIModule.dll" Private="false" />
+    <Reference Include="$(GameDir)\interop\Facepunch.Steamworks.Win64.dll" Private="false" />
+  </ItemGroup>
+</Project>

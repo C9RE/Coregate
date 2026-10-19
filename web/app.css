@@ -1,0 +1,291 @@
+/* COREGATE server page. Served by the plugin itself; nothing here is fetched from anywhere else.
+   Palette pulled from the Dimraeth key art: night slate, worked stone, bone, banner brass, ember. */
+@font-face { font-family: "Pixel Operator"; src: url("/assets/font.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Pixel Operator"; src: url("/assets/font-bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+:root {
+	--bg: #0a0d13; --panel: #11151d; --raised: #181d27; --hair: #262c38; --strong: #3d4557; --hi: rgba(236,227,208,.05); --shadow: #05070a;
+	--text: #ece3d0; --dim: #a8a196; --faint: #6f6a62;
+	--teal: #8cbde8; --amber: #e0a948; --gold: #d4a24c; --gold-hi: #f0c674; --violet: #a08ad8; --danger: #d0583f; --ok: #86c873; --off: #5b5f68;
+	--iron: linear-gradient(180deg, #1d2330 0%, #141922 100%);
+	--grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .95 0 0 0 0 .86 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	--pixel: "Pixel Operator", ui-monospace, monospace; --body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--mono: ui-monospace, "Cascadia Mono", Consolas, Monaco, monospace;
+	--top: 64px; --rail: 252px;
+	color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 15px/1.5 var(--body); overflow: hidden; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--teal); }
+:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+.wg-app { display: flex; flex-direction: column; height: 100%; }
+
+/* ---- top bar: the key art behind a heavy slate wash, logo on the left ---- */
+.wg-top { flex: none; position: relative; z-index: 2; height: var(--top); display: flex; align-items: center; gap: 14px; padding: 0 16px;
+	background: linear-gradient(90deg, rgba(10,13,19,.97) 0%, rgba(10,13,19,.72) 34%, rgba(10,13,19,.86) 62%, rgba(10,13,19,.97) 100%), url("/cg-keyart.webp") center 22% / cover no-repeat, var(--bg);
+	border-bottom: 1px solid #000; box-shadow: 0 1px 0 rgba(212,162,76,.28), 0 6px 18px rgba(0,0,0,.45); }
+.cg-brand { display: inline-flex; align-items: center; gap: 12px; flex: none; text-decoration: none; color: inherit; }
+.cg-logo { display: block; height: 40px; width: auto; filter: drop-shadow(0 2px 0 rgba(0,0,0,.8)) drop-shadow(0 0 14px rgba(140,189,232,.18)); }
+.cg-mark { display: flex; flex-direction: column; line-height: 1; padding-left: 12px; border-left: 1px solid rgba(236,227,208,.16); }
+.cg-mark b { font-family: var(--pixel); font-weight: 700; font-size: 15px; letter-spacing: .22em; color: var(--gold); }
+.cg-mark small { font-family: var(--pixel); font-size: 12px; letter-spacing: .08em; color: var(--faint); margin-top: 4px; text-transform: uppercase; }
+.wg-server { font-family: var(--pixel); font-size: 22px; font-weight: 700; line-height: 1.125; color: var(--text); text-shadow: 0 2px 0 #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; padding-left: 14px; border-left: 1px solid rgba(236,227,208,.16); }
+.wg-spacer { flex: 1; min-width: 0; }
+/* status reads as a line of text with a lamp, not a capsule */
+.wg-pill { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 2px; font-family: var(--pixel); font-size: 16px; color: var(--dim); white-space: nowrap; flex: none; text-shadow: 0 1px 0 #000; }
+.wg-pill .wg-dot { width: 8px; height: 8px; transform: rotate(45deg); background: var(--off); flex: none; box-shadow: 0 0 0 1px #000; }
+.wg-pill.live { color: var(--ok); } .wg-pill.live .wg-dot { background: var(--ok); box-shadow: 0 0 0 1px #000, 0 0 10px rgba(134,200,115,.7); }
+.wg-pill.err { color: var(--danger); } .wg-pill.err .wg-dot { background: var(--danger); }
+.wg-pill.warn { color: var(--amber); } .wg-pill.warn .wg-dot { background: var(--amber); }
+.cg-count { font-family: var(--pixel); font-size: 16px; color: var(--text); white-space: nowrap; flex: none; padding: 0 14px; border-left: 1px solid rgba(236,227,208,.16); border-right: 1px solid rgba(236,227,208,.16); line-height: 34px; font-variant-numeric: tabular-nums; text-shadow: 0 1px 0 #000; }
+
+/* ---- buttons: iron plates, brass for the one action that matters ---- */
+.wg-btn { height: 34px; padding: 0 14px; border: 1px solid #000; border-radius: 2px; background: var(--iron); color: var(--text); font-family: var(--pixel); font-size: 16px; white-space: nowrap; flex: none; box-shadow: inset 0 1px 0 rgba(236,227,208,.08), inset 0 0 0 1px rgba(236,227,208,.04), 0 1px 0 rgba(0,0,0,.6); }
+.wg-btn:hover { color: var(--gold-hi); box-shadow: inset 0 1px 0 rgba(236,227,208,.1), inset 0 0 0 1px rgba(212,162,76,.45), 0 1px 0 rgba(0,0,0,.6); }
+.wg-btn:active { background: #10141b; box-shadow: inset 0 2px 3px rgba(0,0,0,.6); }
+.wg-btn.go { background: linear-gradient(180deg, #e2b25a 0%, #b9832f 100%); border-color: #3a2608; color: #1c1206; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,236,190,.55), 0 1px 0 rgba(0,0,0,.6); text-shadow: 0 1px 0 rgba(255,230,170,.35); }
+.wg-btn.go:hover { background: linear-gradient(180deg, #f0c674 0%, #c8913a 100%); color: #1c1206; }
+.wg-btn.danger:hover { color: var(--danger); box-shadow: inset 0 0 0 1px rgba(208,88,63,.5); }
+.wg-btn[disabled] { opacity: .45; cursor: default; }
+.wg-btn.sq { width: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+.wg-ico { display: inline-block; width: 24px; height: 24px; background: url("/assets/tabicons.png") no-repeat; background-size: 120px 24px; vertical-align: middle; flex: none; image-rendering: pixelated; }
+.wg-ico-map { background-position: 0 0; } .wg-ico-console { background-position: -24px 0; } .wg-ico-players { background-position: -48px 0; } .wg-ico-bell { background-position: -72px 0; } .wg-ico-help { background-position: -96px 0; }
+.wg-dockbtn { display: none; align-items: center; gap: 4px; }
+
+/* ---- tabs: a worked-stone ledge under the header ---- */
+.wg-tabs { flex: none; height: 44px; display: flex; align-items: stretch; gap: 2px; background: var(--grain), linear-gradient(180deg, #151a23, #0f1218); border-bottom: 1px solid #000; box-shadow: 0 1px 0 var(--hi); padding: 0 10px; overflow-x: auto; scrollbar-width: none; }
+.wg-tabs::-webkit-scrollbar { display: none; }
+.wg-tab { position: relative; background: transparent; border: none; color: var(--dim); font-family: var(--pixel); font-size: 17px; padding: 0 18px; display: flex; align-items: center; gap: 8px; flex: 0 0 auto; white-space: nowrap; text-shadow: 0 1px 0 #000; }
+.wg-tab .wg-ico { opacity: .55; width: 20px; height: 20px; background-size: 100px 20px; filter: grayscale(.6); }
+.wg-tab.wg-tab-map .wg-ico { background-position: 0 0; } .wg-tab.wg-tab-console .wg-ico { background-position: -20px 0; } .wg-tab.wg-tab-players .wg-ico { background-position: -40px 0; } .wg-tab.wg-tab-alerts .wg-ico { background-position: -60px 0; }
+.wg-tab:hover { color: var(--text); }
+.wg-tab.active { color: var(--text); background: linear-gradient(180deg, rgba(212,162,76,0) 0%, rgba(212,162,76,.1) 100%); }
+.wg-tab.active::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 2px; background: var(--gold); box-shadow: 0 0 8px rgba(212,162,76,.5); }
+.wg-tab.active .wg-ico { opacity: 1; filter: none; }
+
+/* ---- body: main + players rail ---- */
+.wg-body { flex: 1; min-height: 0; display: flex; position: relative; }
+.wg-main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: radial-gradient(120% 80% at 50% 0%, #121722 0%, var(--bg) 70%); }
+.wg-pane { display: none; flex: 1; min-height: 0; min-width: 0; }
+.wg-pane.active { display: flex; flex-direction: column; }
+.wg-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 20px; }
+.wg-rail { flex: 0 0 var(--rail); border-left: 1px solid #000; box-shadow: inset 1px 0 0 var(--hi); display: flex; flex-direction: column; min-height: 0;
+	background: linear-gradient(180deg, var(--panel) 0%, var(--panel) 55%, rgba(17,21,29,.9) 78%, rgba(17,21,29,.55) 100%), url("/cg-world.webp") 30% 100% / auto 100% no-repeat, var(--panel); }
+.wg-railhead { flex: none; padding: 12px 14px 10px; font-family: var(--pixel); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); border-bottom: 1px solid #000; box-shadow: 0 1px 0 var(--hi); background: var(--grain), #141922; }
+.wg-railbody { flex: 1; min-height: 0; overflow-y: auto; }
+.wg-prow { padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,.55); box-shadow: 0 1px 0 var(--hi); background: rgba(17,21,29,.82); }
+.wg-prow .nm { display: flex; align-items: center; gap: 8px; color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wg-prow .sw { width: 8px; height: 8px; transform: rotate(45deg); flex: none; box-shadow: 0 0 0 1px rgba(0,0,0,.8); }
+.wg-prow .lv { margin-left: auto; font-family: var(--pixel); font-size: 13px; color: var(--gold); padding: 0 2px; flex: none; }
+.wg-prow .mt { color: var(--dim); font-size: 12px; margin-top: 3px; display: flex; align-items: center; gap: 8px; }
+.wg-prow .mt em { font-style: normal; color: var(--amber); }
+.wg-hp { height: 5px; background: #07090d; border: 1px solid #000; overflow: hidden; flex: 0 0 60px; }
+.wg-hp i { display: block; height: 100%; background: linear-gradient(180deg, #a3dc8f, #5c9a4b); } .wg-hp i.hurt { background: linear-gradient(180deg, #e57a5f, #a33c27); }
+.wg-pacts { display: flex; gap: 5px; margin-top: 8px; }
+.wg-pacts button { flex: 1; height: 28px; border-radius: 2px; border: 1px solid #000; background: var(--iron); color: var(--dim); font-size: 12px; padding: 0 6px; box-shadow: inset 0 1px 0 rgba(236,227,208,.06); }
+.wg-pacts button:hover { color: var(--gold-hi); } .wg-pacts button.danger:hover { color: var(--danger); }
+.wg-empty { color: var(--dim); padding: 22px 14px; text-align: center; font-size: 14px; }
+.wg-railfoot { flex: none; padding: 8px 14px; color: var(--faint); font-size: 12px; border-top: 1px solid #000; background: rgba(10,13,19,.85); }
+
+/* ---- the map pane: the renderer fills it ---- */
+.wg-mapwrap { flex: 1; min-height: 0; position: relative; background: #07090d; }
+.wgc { position: absolute; inset: 0; }
+.wgc-map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+.wgc-map.drag { cursor: grabbing; }
+.wgc-areas { position: absolute; top: 12px; left: 12px; z-index: 3; display: inline-flex; border: 1px solid #000; border-radius: 2px; overflow: hidden; background: rgba(12,15,21,.92); box-shadow: inset 0 0 0 1px rgba(236,227,208,.07), 0 4px 14px rgba(0,0,0,.5); max-width: calc(100% - 70px); overflow-x: auto; scrollbar-width: none; }
+.wgc-areas::-webkit-scrollbar { display: none; }
+.wgc-area { height: 32px; padding: 0 14px; border: none; border-right: 1px solid rgba(0,0,0,.8); background: transparent; color: var(--dim); font-family: var(--pixel); font-size: 16px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.wgc-area:last-child { border-right: none; }
+.wgc-area:hover { color: var(--text); background: var(--raised); }
+.wgc-area.active { color: var(--gold-hi); background: rgba(212,162,76,.1); box-shadow: inset 0 -2px 0 var(--gold); }
+.wgc-area-count:empty { display: none; }
+.wgc-area-count { font-style: normal; font-family: var(--pixel); font-size: 12px; min-width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 2px; background: rgba(212,162,76,.2); color: var(--gold-hi); padding: 0 5px; }
+.wgc-badge { position: absolute; top: 54px; left: 12px; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 2px; font-family: var(--pixel); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; border: 1px solid #000; color: var(--dim); background: rgba(12,15,21,.88); }
+.wgc-badge-hidden { display: none; }
+.wgc-badge-live { color: var(--ok); }
+.wgc-badge-err { color: var(--danger); }
+.wgc-dot { display: inline-block; width: 7px; height: 7px; transform: rotate(45deg); background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+.wgc-zoom { position: absolute; top: 12px; right: 12px; z-index: 3; display: flex; flex-direction: column; gap: 6px; }
+.wgc-zoom button { width: 36px; height: 36px; padding: 0; border: 1px solid #000; border-radius: 2px; background: var(--iron); box-shadow: inset 0 1px 0 rgba(236,227,208,.08), 0 3px 10px rgba(0,0,0,.45); color: var(--text); font-family: var(--pixel); font-size: 22px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.wgc-zoom button:hover { color: var(--gold-hi); }
+.wgc-zoom button.on { color: var(--gold-hi); box-shadow: inset 0 0 0 1px rgba(212,162,76,.6); }
+.wgc-layers { position: absolute; top: 12px; right: 56px; z-index: 4; width: 260px; max-height: calc(100% - 24px); overflow-y: auto; background: rgba(15,18,25,.97); border: 1px solid #000; box-shadow: inset 0 0 0 1px rgba(236,227,208,.07), 0 10px 30px rgba(0,0,0,.6); border-radius: 2px; padding: 8px 10px; }
+.wgc-layer { display: flex; align-items: center; gap: 9px; padding: 5px 2px; font-size: 13px; color: var(--dim); cursor: pointer; border-bottom: 1px solid var(--hair); user-select: none; }
+.wgc-layer:hover { color: var(--text); } .wgc-layer.off { opacity: .38; }
+.wgc-layer .wgc-grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wgc-layer .wgc-count { font-family: var(--pixel); font-size: 12px; color: var(--faint); }
+.wgc-layer .wgc-grow .wgc-note { display: block; font-size: 11px; color: var(--faint); white-space: normal; line-height: 1.3; margin-top: 1px; }
+.wgc-fogmode { padding: 4px 2px 4px 33px; font-size: 12px; color: var(--faint); cursor: pointer; border-bottom: 1px solid var(--hair); }
+.wgc-fogmode:hover { color: var(--text); } .wgc-fogmode.on { color: var(--gold-hi); }
+.wgc-fogmode.on::before { content: '\25C6  '; }
+.wgc-cell { width: 22px; height: 22px; flex: none; background-image: url("/assets/markers.webp"); background-repeat: no-repeat; background-size: 352px 22px; }
+.wgc-cell2 { background-image: url("/assets/markers2.webp"); }
+.wgc-cell-text { background: none; display: flex; align-items: center; justify-content: center; font-family: var(--pixel); font-size: 13px; color: var(--dim); }
+.wgc-sub { font-family: var(--pixel); font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--gold); margin: 8px 0 4px; display: flex; align-items: center; gap: 8px; }
+.wgc-num { color: var(--text); margin-left: auto; letter-spacing: 0; }
+.wgc-regions { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0; }
+.wgc-region { font-size: 11px; padding: 2px 7px; border-radius: 2px; border: 1px solid var(--hair); color: var(--faint); }
+.wgc-region.found { color: var(--ok); border-color: rgba(134,200,115,.35); background: rgba(134,200,115,.07); }
+.wgc-muted { color: var(--faint); font-size: 12px; padding: 4px 0; line-height: 1.5; }
+.wgc-legend { position: absolute; left: 12px; bottom: 12px; z-index: 3; display: inline-flex; gap: 0; border: 1px solid #000; border-radius: 2px; background: rgba(12,15,21,.9); box-shadow: inset 0 0 0 1px rgba(236,227,208,.06); overflow: hidden; }
+.wgc-legend-item { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-right: 1px solid rgba(0,0,0,.8); font-family: var(--pixel); font-size: 13px; color: var(--dim); }
+.wgc-legend-item:last-child { border-right: none; }
+.wgc-scale { position: absolute; right: 12px; bottom: 12px; z-index: 3; color: var(--dim); font-family: var(--pixel); font-size: 12px; text-align: right; background: rgba(12,15,21,.85); padding: 3px 8px 6px; border-radius: 2px; border: 1px solid #000; }
+.wgc-scale-bar { height: 4px; border: 1px solid rgba(236,227,208,.8); border-top: none; box-sizing: border-box; margin-top: 2px; margin-left: auto; }
+.wgc-note { display: none; }
+/* what a mark is, in words: the name, then the facts (a mouse hovers, a finger taps) */
+.wgc-tip { position: absolute; z-index: 5; left: 0; top: 0; max-width: 280px; padding: 7px 11px; border: 1px solid #000; border-radius: 2px; background: rgba(15,18,25,.97); box-shadow: inset 0 0 0 1px rgba(212,162,76,.3), 0 6px 18px rgba(0,0,0,.5); color: var(--text); font-size: 12.5px; line-height: 1.35; pointer-events: none; opacity: 0; visibility: hidden; }
+.wgc-tip.on { opacity: 1; visibility: visible; }
+.wgc-tip b { display: block; font-family: var(--pixel); font-weight: 700; font-size: 15px; letter-spacing: .02em; color: var(--gold-hi); }
+.wgc-tip span { display: block; color: var(--dim); }
+.wgc-tip span:empty { display: none; }
+/* world progress: one line above the legend, unfolded on a click */
+.wgc-progress { position: absolute; left: 12px; bottom: 52px; z-index: 3; max-width: min(420px, calc(100% - 24px)); border: 1px solid #000; border-radius: 2px; background: rgba(12,15,21,.92); box-shadow: inset 0 0 0 1px rgba(236,227,208,.06); overflow: hidden; }
+.wgc-prog-head { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 32px; padding: 4px 10px; border: none; background: transparent; color: var(--dim); font-family: var(--pixel); font-size: 14px; text-align: left; cursor: pointer; }
+.wgc-prog-head:hover { color: var(--text); background: var(--raised); }
+.wgc-prog-head b { font-weight: 400; color: var(--text); }
+.wgc-prog-head i { font-style: normal; color: var(--faint); padding: 0 2px; }
+.wgc-prog-line { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wgc-caret { color: var(--faint); font-size: 12px; }
+.wgc-prog-body { border-top: 1px solid var(--hair); padding: 6px 10px 8px; max-height: 240px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--strong) transparent; }
+.wgc-prog-body::-webkit-scrollbar { width: 8px; } .wgc-prog-body::-webkit-scrollbar-thumb { background: var(--strong); border-radius: 0; } .wgc-prog-body::-webkit-scrollbar-track { background: transparent; }
+.wgc-prog-row { display: flex; gap: 10px; padding: 3px 0; font-size: 12.5px; line-height: 1.4; border-bottom: 1px solid rgba(38,44,56,.6); }
+.wgc-prog-row:last-child { border-bottom: none; }
+.wgc-prog-row span { flex: none; width: 104px; color: var(--faint); }
+.wgc-prog-row em { flex: 1; min-width: 0; font-style: normal; color: var(--text); }
+.wgc-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; color: var(--dim); font-size: 14px; z-index: 4; background: rgba(10,13,19,.72); }
+
+/* ---- console ---- */
+.wgcon-wrap { flex: 1; min-height: 0; display: flex; }
+.wgcon-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.wgcon-bar { flex: none; display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: var(--panel); border-bottom: 1px solid #000; box-shadow: 0 1px 0 var(--hi); font-size: 13px; color: var(--dim); height: 44px; }
+.wgcon-bar label { display: flex; align-items: center; gap: 6px; }
+.wgcon-out { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 14px; font-family: var(--mono); font-size: 13px; line-height: 1.55; color: var(--dim); background: #07090d; box-shadow: inset 0 8px 16px -8px rgba(0,0,0,.8); }
+.wgcon-out div { white-space: pre-wrap; word-break: break-word; }
+.wgcon-out .t { color: var(--faint); } .wgcon-out .src { color: var(--teal); } .wgcon-out .src.chat { color: var(--violet); } .wgcon-out .me { color: var(--gold-hi); } .wgcon-out .warn { color: var(--amber); } .wgcon-out .err { color: var(--danger); }
+.wgcon-divider { display: flex; align-items: center; gap: 10px; margin: 10px 0; color: var(--gold); font-family: var(--pixel); font-size: 12px; text-transform: uppercase; letter-spacing: .14em; }
+.wgcon-divider::before, .wgcon-divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(212,162,76,.45), transparent); }
+.wgcon-inputrow { flex: none; display: flex; gap: 8px; padding: 10px 14px; background: var(--panel); border-top: 1px solid #000; box-shadow: inset 0 1px 0 var(--hi); }
+.wgcon-inputrow input { flex: 1; min-width: 0; height: 36px; background: #07090d; border: 1px solid #000; border-radius: 2px; box-shadow: inset 0 1px 3px rgba(0,0,0,.7), 0 1px 0 var(--hi); color: var(--text); font-family: var(--mono); font-size: 14px; padding: 0 10px; }
+.wgcon-inputrow input:focus { outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,.7), 0 0 0 1px rgba(212,162,76,.6); }
+.wgcon-side { flex: 0 0 216px; border-left: 1px solid #000; box-shadow: inset 1px 0 0 var(--hi); background: var(--panel); overflow-y: auto; padding: 12px 10px; }
+.wgcon-side h6 { margin: 0 0 8px 7px; font-family: var(--pixel); font-size: 13px; text-transform: uppercase; letter-spacing: .16em; color: var(--gold); font-weight: 400; }
+.wgcon-cmd { display: block; width: 100%; text-align: left; background: transparent; border: none; border-left: 2px solid transparent; color: var(--dim); font-size: 13px; padding: 6px 8px; border-radius: 0; margin: 0 0 2px; }
+.wgcon-cmd:hover { background: var(--raised); border-left-color: var(--gold); color: var(--text); }
+.wgcon-cmd b { display: block; color: var(--text); font-family: var(--mono); font-size: 13px; font-weight: 600; }
+.wgcon-cmd span { font-size: 12px; color: var(--faint); }
+
+/* ---- locked panes: the world behind glass, a hanging banner on the card ---- */
+.wg-locked { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; background-size: cover; background-position: center; }
+.cg-lock-console { background-image: linear-gradient(180deg, rgba(10,13,19,.82), rgba(10,13,19,.94)), url("/cg-world.webp"); }
+.cg-lock-alerts { background-image: linear-gradient(180deg, rgba(10,13,19,.82), rgba(10,13,19,.94)), url("/cg-camp.webp"); }
+.wg-lockcard { position: relative; max-width: 460px; width: 100%; background: var(--grain), var(--panel); border: 1px solid #000; border-radius: 2px; padding: 22px 22px 18px 84px; box-shadow: inset 0 0 0 1px rgba(236,227,208,.07), inset 0 2px 0 rgba(212,162,76,.35), 0 20px 50px rgba(0,0,0,.6); }
+.cg-banner { position: absolute; left: 20px; top: -6px; width: 46px; height: auto; image-rendering: pixelated; filter: drop-shadow(0 4px 6px rgba(0,0,0,.6)); }
+.wg-lockcard h3 { margin: 0 0 6px; font-family: var(--pixel); font-size: 22px; font-weight: 700; color: var(--text); }
+.wg-lockcard p { margin: 0 0 14px; color: var(--dim); font-size: 14px; }
+
+/* ---- cards + forms ---- */
+.cg-plate { position: relative; height: 132px; margin-bottom: 14px; border: 1px solid #000; border-radius: 2px; background-size: cover; background-position: center 40%; image-rendering: pixelated; box-shadow: inset 0 0 0 1px rgba(236,227,208,.07), 0 10px 26px rgba(0,0,0,.45); overflow: hidden; }
+.cg-plate::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,13,19,.92) 0%, rgba(10,13,19,.45) 45%, rgba(10,13,19,.15) 100%), linear-gradient(0deg, rgba(10,13,19,.7) 0%, transparent 60%); }
+.cg-plate span { position: absolute; z-index: 1; left: 18px; bottom: 14px; font-family: var(--pixel); font-weight: 700; font-size: 26px; color: var(--text); text-shadow: 0 2px 0 #000; }
+.cg-plate span::before { content: ''; display: block; width: 28px; height: 2px; background: var(--gold); margin-bottom: 8px; }
+.cg-plate-camp { background-image: url("/cg-camp.webp"); }
+.wg-card { background: var(--grain), var(--panel); border: 1px solid #000; border-radius: 2px; padding: 16px 18px; margin-bottom: 14px; box-shadow: inset 0 0 0 1px rgba(236,227,208,.06), inset 0 1px 0 rgba(236,227,208,.08); }
+.wg-card h6 { margin: 0 0 4px; font-family: var(--pixel); font-size: 19px; font-weight: 700; color: var(--text); }
+.wg-hint { margin: 0 0 12px; font-size: 14px; line-height: 1.55; color: var(--dim); max-width: 68ch; }
+.wg-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.wg-in { flex: 1 1 200px; min-width: 0; height: 36px; background: #07090d; border: 1px solid #000; border-radius: 2px; box-shadow: inset 0 1px 3px rgba(0,0,0,.7), 0 1px 0 var(--hi); color: var(--text); font-size: 14px; padding: 0 10px; margin: 0; }
+.wg-in:focus { outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,.7), 0 0 0 1px rgba(212,162,76,.6); }
+.wg-in::placeholder { color: var(--faint); }
+.wg-in.short { flex: 0 0 150px; }
+.wg-check { display: flex; align-items: center; gap: 9px; margin: 0 0 9px; font-size: 14px; color: var(--text); }
+.wg-check input { appearance: none; width: 16px; height: 16px; flex: none; background: #07090d; border: 1px solid #000; box-shadow: inset 0 0 0 1px var(--strong); border-radius: 1px; margin: 0; position: relative; }
+.wg-check input:checked { background: var(--gold); box-shadow: inset 0 1px 0 rgba(255,236,190,.5); }
+.wg-check input:checked::after { content: ''; position: absolute; left: 5px; top: 1px; width: 4px; height: 9px; border: solid #1c1206; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.wg-note { font-size: 13px; color: var(--faint); margin: -5px 0 10px 25px; }
+.wg-result { font-size: 14px; margin-top: 9px; min-height: 20px; color: var(--dim); }
+.wg-result.bad { color: var(--danger); } .wg-result.good { color: var(--ok); }
+table.wg-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.wg-table th { text-align: left; color: var(--gold); font-family: var(--pixel); font-weight: 400; font-size: 13px; text-transform: uppercase; letter-spacing: .1em; padding: 7px 9px; border-bottom: 1px solid #000; box-shadow: 0 1px 0 var(--hi); white-space: nowrap; }
+table.wg-table td { color: var(--dim); padding: 8px 9px; border-bottom: 1px solid var(--hair); white-space: nowrap; }
+table.wg-table tr:hover td { background: rgba(236,227,208,.025); }
+table.wg-table td.n { color: var(--text); }
+.wg-tablewrap { overflow-x: auto; }
+
+/* ---- dialogs ---- */
+.wg-modal { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; background: rgba(5,7,10,.8); padding: 16px; }
+.wg-modal.open { display: flex; }
+.wg-dialog { width: min(580px, 100%); background: var(--grain), var(--panel); border: 1px solid #000; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(236,227,208,.08), inset 0 2px 0 rgba(212,162,76,.35), 0 24px 70px rgba(0,0,0,.75); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+.cg-dhero { flex: none; height: 150px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 14px; border-bottom: 1px solid #000; background: linear-gradient(180deg, rgba(10,13,19,.15) 0%, rgba(10,13,19,.55) 60%, rgba(17,21,29,1) 100%), url("/cg-keyart.webp") center 30% / cover no-repeat; }
+.cg-dhero img { height: 64px; width: auto; filter: drop-shadow(0 3px 0 rgba(0,0,0,.85)); }
+.wg-dialog header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #000; box-shadow: 0 1px 0 var(--hi); font-family: var(--pixel); font-size: 20px; font-weight: 700; }
+.wg-dialog header button { margin-left: auto; }
+.wg-dialog .wg-dbody { padding: 14px 18px 18px; overflow-y: auto; font-size: 14px; line-height: 1.6; color: var(--dim); }
+.wg-dialog .wg-dbody h4 { margin: 14px 0 4px; color: var(--gold); font-family: var(--pixel); font-size: 17px; font-weight: 700; letter-spacing: .02em; }
+.wg-dialog .wg-dbody p { margin: 0 0 8px; }
+.wg-dialog .wg-dbody b { color: var(--text); }
+.wg-dialog code { font-family: var(--mono); font-size: 13px; color: var(--gold-hi); background: #07090d; padding: 1px 5px; border: 1px solid #000; }
+
+/* ---- phone ---- */
+@media (max-width: 900px) {
+	:root { --top: 56px; }
+	.wgc-progress { bottom: 12px; max-width: calc(100% - 130px); }
+	.wg-top { gap: 10px; padding: 0 10px; }
+	.cg-logo { height: 30px; }
+	.cg-mark { display: none; }
+	.wg-server { display: none; }
+	.wg-dockbtn { display: inline-flex; }
+	.wg-rail { position: absolute; left: 0; right: 0; bottom: 0; top: auto; width: auto; flex: none; max-height: 62%; border-left: none; border-top: 1px solid #000; box-shadow: inset 0 2px 0 rgba(212,162,76,.35), 0 -10px 30px rgba(0,0,0,.55); border-radius: 0; transform: translateY(calc(100% - 40px)); transition: transform .22s ease; z-index: 30; background: var(--panel); }
+	.wg-rail.open { transform: translateY(0); }
+	.wg-railhead { cursor: pointer; text-align: center; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: none; letter-spacing: .04em; font-size: 16px; }
+	.wg-railhead::before { content: ''; position: absolute; top: 7px; left: 50%; width: 40px; height: 2px; margin-left: -20px; background: var(--strong); }
+	.wgcon-side { display: none; }
+	.wgc-legend { display: none; }
+	.wgc-badge { top: 54px; }
+	.wgc-areas { max-width: calc(100% - 24px); }
+	.wgc-zoom { top: 54px; }
+	.wg-scroll { padding: 12px; }
+	.cg-plate { height: 96px; }
+	.wg-lockcard { padding-left: 74px; }
+	.cg-banner { left: 16px; width: 40px; }
+}
+@media (max-width: 520px) {
+	.cg-count { display: none; }
+	.wg-pill span { display: none; }
+}
+@media (pointer: coarse) {
+	.wg-in, .wgcon-inputrow input { font-size: 16px; height: 42px; }
+	.wg-btn { height: 42px; } .wg-btn.sq { width: 42px; }
+	.wgc-zoom button { width: 42px; height: 42px; }
+	.wgc-area { height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) { .wg-rail { transition: none; } }
+
+/* ---- the page's own dropdown (a native select pops the OS list, which cannot be skinned) ---- */
+.wg-select { position: relative; display: inline-flex; flex: 0 0 auto; }
+.wg-select-btn { display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; height: 36px; min-width: 150px; padding: 0 10px 0 12px; background: #07090d; border: 1px solid #000; border-radius: 2px; color: var(--text); font: 14px var(--body); margin: 0; white-space: nowrap; text-align: left; box-shadow: inset 0 0 0 1px var(--hair); }
+.wg-select-btn:hover, .wg-select.open .wg-select-btn { box-shadow: inset 0 0 0 1px rgba(212,162,76,.55); }
+.wg-select-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 1px var(--gold), 0 0 0 2px rgba(212,162,76,.2); }
+.wg-select-btn .wg-caret { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid var(--faint); transition: transform .15s; flex: none; }
+.wg-select.open .wg-select-btn .wg-caret { transform: rotate(180deg); border-top-color: var(--gold); }
+.wg-select-val { overflow: hidden; text-overflow: ellipsis; }
+.wg-select-list { position: absolute; top: calc(100% + 4px); left: 0; min-width: 100%; max-height: 260px; overflow-y: auto; margin: 0; padding: 4px 0; list-style: none; background: var(--panel); border: 1px solid #000; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(236,227,208,.08), 0 10px 30px rgba(0,0,0,.6); z-index: 60; display: none; }
+.wg-select.open .wg-select-list { display: block; }
+.wg-select.up .wg-select-list { top: auto; bottom: calc(100% + 4px); }
+.wg-select-list li { padding: 7px 12px; font-size: 14px; color: var(--dim); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+.wg-select-list li:hover, .wg-select-list li.hot { background: var(--raised); color: var(--text); }
+.wg-select-list li[aria-selected="true"] { color: var(--gold-hi); }
+.wg-select-list li::before { content: ''; width: 12px; flex: none; font-size: 12px; }
+.wg-select-list li[aria-selected="true"]::before { content: '\2713'; }
+.wg-select.sm .wg-select-btn { height: 28px; min-width: 130px; font-size: 13px; }
+.wg-select.sm .wg-select-list li { padding: 6px 10px; font-size: 13px; }
+.wg-select.mid .wg-select-btn { width: 150px; min-width: 0; }
+.wgcon-bar .wg-check { font-size: 13px; color: var(--dim); }
+/* ---- every scroll container wears the page's own scrollbar ---- */
+.wg-scroll, .wgcon-out, .wgcon-side, .wg-railbody, .wg-tablewrap, .wgc-layers, .wg-select-list, .wg-dialog .wg-dbody { scrollbar-width: thin; scrollbar-color: var(--strong) var(--panel); }
+.wg-scroll::-webkit-scrollbar, .wgcon-out::-webkit-scrollbar, .wgcon-side::-webkit-scrollbar, .wg-railbody::-webkit-scrollbar, .wg-tablewrap::-webkit-scrollbar, .wgc-layers::-webkit-scrollbar, .wg-select-list::-webkit-scrollbar, .wg-dialog .wg-dbody::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--hair); border: 2px solid var(--panel); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--strong); }
+::-webkit-scrollbar-corner { background: var(--panel); }

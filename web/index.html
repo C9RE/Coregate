@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COREGATE | Dimraeth Dedicated Server</title>
+<link rel="icon" href="/icon.png" type="image/png">
+<link rel="stylesheet" href="/app.css?v=2">
+</head>
+<body>
+<div class="wg-app">
+	<header class="wg-top">
+		<a class="cg-brand" href="/" title="COREGATE"><img class="cg-logo" src="/cg-logo.webp" alt="Dimraeth" width="123" height="40"><span class="cg-mark"><b>COREGATE</b><small>Dedicated server</small></span></a>
+		<span class="wg-server" id="wgServer">&nbsp;</span>
+		<span class="wg-spacer"></span>
+		<span class="wg-pill" id="wgState"><i class="wg-dot"></i><span>Checking&hellip;</span></span>
+		<span class="cg-count" id="wgCount">&ndash; / &ndash; players</span>
+		<button type="button" class="wg-btn wg-dockbtn" id="wgDockBtn"><span class="wg-ico wg-ico-players"></span> <span id="wgDockCount">0</span></button>
+		<button type="button" class="wg-btn" id="wgUnlock">Unlock</button>
+		<button type="button" class="wg-btn sq" id="wgHelp" aria-label="Help" title="What this page is"><span class="wg-ico wg-ico-help"></span></button>
+	</header>
+	<nav class="wg-tabs" role="tablist">
+		<button type="button" class="wg-tab wg-tab-map active" data-tab="map" role="tab"><span class="wg-ico"></span> Map</button>
+		<button type="button" class="wg-tab wg-tab-console" data-tab="console" role="tab"><span class="wg-ico"></span> Console</button>
+		<button type="button" class="wg-tab wg-tab-players" data-tab="players" role="tab"><span class="wg-ico"></span> Players</button>
+		<button type="button" class="wg-tab wg-tab-alerts" data-tab="alerts" role="tab"><span class="wg-ico"></span> Alerts</button>
+	</nav>
+	<div class="wg-body">
+		<main class="wg-main">
+			<section class="wg-pane active" data-pane="map">
+				<div class="wg-mapwrap" id="wgMap"></div>
+			</section>
+			<section class="wg-pane" data-pane="console">
+				<div class="wg-locked cg-lock-console" id="wgConLocked">
+					<div class="wg-lockcard">
+						<img class="cg-banner" src="/cg-magician.webp" alt="" width="46" height="111">
+						<h3>The console is for the owner</h3>
+						<p>Enter the admin password from the server's config to see the live console and run commands. It stays in this browser only.</p>
+						<div class="wg-row"><input type="password" class="wg-in" id="wgConPass" placeholder="Admin password" autocomplete="current-password"><button type="button" class="wg-btn go" id="wgConUnlock">Unlock</button></div>
+						<div class="wg-result" id="wgConLockResult"></div>
+					</div>
+				</div>
+				<div class="wgcon-wrap" id="wgConWrap" style="display:none;">
+					<div class="wgcon-main">
+						<div class="wgcon-bar">
+							<label class="wg-check" style="margin:0;"><input type="checkbox" id="wgconFollow" checked> Stick to the newest line</label>
+							<span>Show</span>
+							<div class="wg-select sm" id="wgconSource" data-value=""></div>
+							<span id="wgconLive" style="margin-left:auto;"></span>
+						</div>
+						<div class="wgcon-out" id="wgconOut"><div class="t">Connecting&hellip;</div></div>
+						<div class="wgcon-inputrow">
+							<input type="text" id="wgconInput" placeholder="Type a command" autocomplete="off" spellcheck="false">
+							<button type="button" class="wg-btn go" id="wgconSend">Run</button>
+						</div>
+					</div>
+					<div class="wgcon-side">
+						<h6>Quick actions</h6>
+						<button type="button" class="wgcon-cmd" data-cmd="players"><b>players</b><span>See who is on</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="status"><b>status</b><span>How the world is doing</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="save"><b>save</b><span>Save the world now</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="say "><b>say</b><span>A line in everyone's chat</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="announce "><b>announce</b><span>Bold and gold for everyone</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="motd "><b>motd</b><span>The welcome line</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="time day"><b>time day</b><span>Make it morning</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="time night"><b>time night</b><span>Make it night</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="weather "><b>weather</b><span>Sunny, Rainy, Stormy&hellip;</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="heal "><b>heal</b><span>Full health and food</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="kick "><b>kick</b><span>Remove someone</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="ban "><b>ban</b><span>Remove and block someone</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="bans"><b>bans</b><span>Who is blocked</span></button>
+						<button type="button" class="wgcon-cmd" data-cmd="help"><b>help</b><span>Everything the server knows</span></button>
+					</div>
+				</div>
+			</section>
+			<section class="wg-pane" data-pane="players">
+				<div class="wg-scroll">
+					<div class="cg-plate cg-plate-camp" aria-hidden="true"><span>Adventurers</span></div>
+					<div class="wg-card">
+						<h6>Who has been on</h6>
+						<p class="wg-hint" id="wgPlHint">Everyone connected right now, with where they are. Unlock to remove or block someone.</p>
+						<div id="wgPlList"><div class="wg-empty">Checking&hellip;</div></div>
+					</div>
+					<div class="wg-card" id="wgBansCard" style="display:none;">
+						<h6>Blocked players</h6>
+						<p class="wg-hint">Anyone here is kept out: their character and the address they joined from. Blocks survive restarts.</p>
+						<div id="wgBanList"><div class="wg-empty">Loading&hellip;</div></div>
+						<div class="wg-result" id="wgBanResult"></div>
+					</div>
+				</div>
+			</section>
+			<section class="wg-pane" data-pane="alerts">
+				<div class="wg-locked cg-lock-alerts" id="wgAlLocked">
+					<div class="wg-lockcard">
+						<img class="cg-banner" src="/cg-brawler.webp" alt="" width="46" height="111">
+						<h3>Alerts are for the owner</h3>
+						<p>Enter the admin password to set up Discord alerts. It stays in this browser only.</p>
+						<div class="wg-row"><input type="password" class="wg-in" id="wgAlPass" placeholder="Admin password" autocomplete="current-password"><button type="button" class="wg-btn go" id="wgAlUnlock">Unlock</button></div>
+						<div class="wg-result" id="wgAlLockResult"></div>
+					</div>
+				</div>
+				<div class="wg-scroll" id="wgAlWrap" style="display:none;">
+					<div class="wg-card">
+						<h6>Tell me in Discord</h6>
+						<p class="wg-hint">Paste a Discord webhook link and this server posts updates into that channel. In Discord, open the channel settings, then Integrations, then Webhooks, and copy the link. The server sends these itself, so nothing arrives once the server is down.</p>
+						<div class="wg-row">
+							<input type="text" class="wg-in" id="wgAlWebhook" placeholder="https://discord.com/api/webhooks/..." maxlength="255">
+							<button type="button" class="wg-btn go" id="wgAlSave">Save</button>
+							<button type="button" class="wg-btn" id="wgAlTest">Send a test</button>
+						</div>
+						<label class="wg-check"><input type="checkbox" id="wgAlJoin" checked> When someone joins or leaves</label>
+						<label class="wg-check"><input type="checkbox" id="wgAlFull" checked> When the server fills up</label>
+						<label class="wg-check"><input type="checkbox" id="wgAlDeath" checked> When someone dies</label>
+						<label class="wg-check"><input type="checkbox" id="wgAlLife" checked> When the world comes up, and when a stop or restart is scheduled</label>
+						<div class="wg-row" style="margin-top:12px;">
+							<label class="wg-check" style="margin:0;">A regular round-up</label>
+							<div class="wg-select mid" id="wgAlEvery" data-value="0"></div>
+						</div>
+						<div class="wg-result" id="wgAlResult"></div>
+					</div>
+				</div>
+			</section>
+		</main>
+		<aside class="wg-rail" id="wgRail">
+			<div class="wg-railhead" id="wgRailHead">Who is playing</div>
+			<div class="wg-railbody" id="wgRailBody"><div class="wg-empty">Checking&hellip;</div></div>
+			<div class="wg-railfoot" id="wgRailFoot">&nbsp;</div>
+		</aside>
+	</div>
+</div>
+
+<div class="wg-modal" id="wgHelpModal">
+	<div class="wg-dialog">
+		<div class="cg-dhero" aria-hidden="true"><img src="/cg-logo.webp" alt="" width="246" height="80"></div>
+		<header><span class="wg-ico wg-ico-help"></span> This page <button type="button" class="wg-btn sq" data-close aria-label="Close">&times;</button></header>
+		<div class="wg-dbody">
+			<p>This is your Dimraeth server's own page, served by the COREGATE dedicated host itself. Share the address with your players: anyone who opens it sees the map and who is on. The console, the block list and the alerts need the admin password from the server's config file, and the password stays in the browser it was typed in.</p>
+			<h4>Map</h4><p>The world as the game draws it, one tab per area, with every adventurer's live position, the Gates and crystals they have found, and the Sanctum's buildings. Scroll to zoom, drag to pan. The layers button hides and shows each kind of marker and the veil over unexplored ground.</p>
+			<h4>Console</h4><p>The server's live log and a command line. The quick actions on the right run the common ones; <b>help</b> lists everything.</p>
+			<h4>Players</h4><p>Everyone connected, and the block list.</p>
+			<h4>Alerts</h4><p>Discord messages the server posts itself: joins, leaves, deaths, a full server, start and stop. It cannot tell you the server is down; only something outside the server can.</p>
+		</div>
+	</div>
+</div>
+<div class="wg-modal" id="wgLockModal">
+	<div class="wg-dialog">
+		<header>Unlock owner controls <button type="button" class="wg-btn sq" data-close aria-label="Close">&times;</button></header>
+		<div class="wg-dbody">
+			<p>The admin password is <code>Password</code> under <code>[Admin]</code> in <code>BepInEx/config/com.coregate.admin.cfg</code>. It unlocks the console, player controls and alerts on this page.</p>
+			<div class="wg-row"><input type="password" class="wg-in" id="wgLockPass" placeholder="Admin password" autocomplete="current-password"><button type="button" class="wg-btn go" id="wgLockGo">Unlock</button></div>
+			<div class="wg-result" id="wgLockResult"></div>
+		</div>
+	</div>
+</div>
+
+<script src="/compass.js?v=2"></script>
+<script src="/app.js?v=2"></script>
+</body>
+</html>
